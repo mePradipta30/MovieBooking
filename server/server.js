@@ -14,9 +14,9 @@ await connectDB(); // Connect to the database
 //83KU7taQuO1r2Zf3
 
 //Middleware
-app.use(clerkMiddleware())
 app.use(express.json())
 app.use(cors())
+app.use(clerkMiddleware())
 
 //API Routes
 app.get('/', (req, res) => res.send('Server is running'))
