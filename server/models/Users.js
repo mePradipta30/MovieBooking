@@ -7,6 +7,6 @@ const userSchema = new mongoose.Schema({
     image: { type: String, required: true }
 }, { timestamps: true });
 
-const User = mongoose.model('User', userSchema)
+const Users = mongoose.model('Users', userSchema)
 
-export default User
+export default Users
