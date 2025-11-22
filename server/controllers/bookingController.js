@@ -1,4 +1,5 @@
-
+import Booking from '../models/Booking.js';
+import Show from '../models/Show.js';
 // Function to availability of selected seats for movie
 const checkSeatAvailability = async (showId, selectedSeats) => {
     try {
