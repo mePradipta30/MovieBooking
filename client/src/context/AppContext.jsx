@@ -3,7 +3,7 @@ import axios from 'axios';
 import React from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useLocation } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -25,13 +25,9 @@ export const AppProvider = ({ children }) => {
 
 
     const fetchAdmin = async () => {
-        try {
-            const token = await getToken();
-            const { data } = await axios.get('/api/admin/is-admin', { headers: { Authorization: `Bearer ${token}`, } });
-
+        try {  
+            const { data } = await axios.get('/api/admin/is-admin', { headers: { Authorization: `Bearer ${await getToken()}`, } });
             setIsAdmin(data.isAdmin);
-            console.log(data.isAdmin);
-
             if (!data.isAdmin && location.pathname.startsWith('/admin')) {
                 navigate('/')
                 toast.error('Access Denied');
