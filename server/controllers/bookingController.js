@@ -24,7 +24,7 @@ export const createBooking = async (req, res) => {
         const { origin } = req.headers;
 
         // check seat availability
-        const isAvalilable = checkSeatAvailability(showId, selectedSeats);
+        const isAvalilable = await checkSeatAvailability(showId, selectedSeats);
         if (!isAvalilable) {
             return res.json({ success: false, message: 'Selected seats are already booked. Please choose different seats.' });
         }

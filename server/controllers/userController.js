@@ -46,8 +46,8 @@ export const updateFavorite = async (req, res) => {
 
 export const getFavorites = async (req, res) => {
     try {
-        const userId = await clerkClient.users.getUser(req.auth().userId);
-        const favorites = user.privaeteMetadata.favorites;
+        const user = await clerkClient.users.getUser(req.auth().userId);
+        const favorites = user.privateMetadata.favorites;
 
         // get movie details from movieIds
         const movies = await Movie.find({ _id: { $in: favorites } });
