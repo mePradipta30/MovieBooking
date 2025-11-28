@@ -27,7 +27,7 @@ export const AppProvider = ({ children }) => {
     const fetchAdmin = async () => {
         try {
             const token = await getToken();
-            const { data } = await axios.get('/api/admin/is-admin', { headers: { Authorization: `Bearer ${token}`, } });
+            const { data } = await axios.get('/api/admin/is-admin', { headers: { Authorization: `Bearer ${await getToken()}`, } });
 
             setIsAdmin(data.isAdmin);
             console.log(data.isAdmin);
