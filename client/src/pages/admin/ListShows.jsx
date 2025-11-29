@@ -3,10 +3,12 @@ import { dummyShowsData } from '../../assets/assets'
 import Loading from '../../components/Loading'
 import Title from '../../components/admin/Title'
 import dateFormat from '../../lib/dateFormat'
+import { useAppContext } from '../../context/AppContext'
 
 const ListShows = () => {
 
   const currency = import.meta.env.VITE_CURRENCY
+  const { axios, getToken, user } = useAppContext();
 
   const [shows, setShows] = React.useState([])
   const [loading, setLoading] = React.useState(true)
@@ -14,29 +16,27 @@ const ListShows = () => {
   const getAllShows = async () => {
     try {
 
-      setShows([{
-        movie: dummyShowsData[0],
-        showsDateTime: "2025-12-25T18:30:00Z",
-        showsPrice: 150,
-        occupiedSeats: {
-          A1: "users_1",
-          B1: "users_2",
-          C1: "users_3"
-        }
-      }]) // Replace with actual data fetching logic
+      const { data } = await axios.get('/api/admin/all-shows', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      });
+      console.log(data.shows);
+
+      setShows(data.shows);
       setLoading(false)
     } catch (error) {
       console.error("Error fetching shows:", error)
     }
   }
   React.useEffect(() => {
-    getAllShows()
-  }, [])
+    if (user) {
+      getAllShows()
+    }
+  }, [user])
 
 
   return !loading ? (
     <>
-      <Title text1="List" text2="Shows"/>
+      <Title text1="List" text2="Shows" />
       <div className='max-w-4xl mt-6 overflow-x-auto'>
         <table className='w-full text-nowrap rounded-md overflow-hidden border-collapse'>
           <thead>
@@ -51,16 +51,16 @@ const ListShows = () => {
             {shows.map((show, index) => (
               <tr key={index} className="border-b border-primary/10 bg-primary/5 even:bg-primary/10">
                 <td className='p-2 min-w-45 pl-5'>{show.movie.title}</td>
-                <td className='p-2'>{dateFormat(show.showsDateTime)}</td>
+                <td className='p-2'>{dateFormat(show.showDateTime)}</td>
                 <td className='p-2'>{Object.keys(show.occupiedSeats).length}</td>
-                <td className='p-2'>{currency + (Object.keys(show.occupiedSeats).length * show.showsPrice)}</td>
+                <td className='p-2'>{currency} {Object.keys(show.occupiedSeats).length * show.showPrice}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     </>
-  ) :  <Loading/>
+  ) : <Loading />
 }
 
 export default ListShows
