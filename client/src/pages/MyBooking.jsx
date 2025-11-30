@@ -5,20 +5,34 @@ import Loading from '../components/Loading';
 import BlurCircle from '../components/BlurCircle';
 import timeFormat from '../lib/timeFormat';
 import dateFormat from '../lib/dateFormat';
+import { useAppContext } from '../context/AppContext';
 
 const MyBooking = () => {
   const currency = import.meta.env.VITE_CURRENCY || '₹';
+  const { axios, getToken, user, image_base_url } = useAppContext();
+
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getMyBookings = async () => {
-    setBookings(dummyBookingData); // Fetch bookings from API and set state
+    try {
+      const { data } = await axios.get('/api/user/bookings', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      });
+      if (data.success) {
+        setBookings(data.bookings);
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error)
+    }
     setIsLoading(false);
   }
 
   useEffect(() => {
-    getMyBookings();
-  }, []);
+    if (user) {
+      getMyBookings();
+    }
+  }, [user]);
 
   return !isLoading ? (
     <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]'>
@@ -31,7 +45,7 @@ const MyBooking = () => {
       {bookings.map((items, index) => (
         <div key={index} className='flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl'>
           <div key={index} className='flex flex-col md:flex-row'>
-            <img src={items.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded' />
+            <img src={image_base_url + items.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded' />
             <div className='flex flex-col p-4'>
               <p className='text-lg font-semibold'>{items.show.movie.title}</p>
               <p className='text-gray-400 text-sm'>{timeFormat(items.show.movie.runtime)}</p>
@@ -41,7 +55,7 @@ const MyBooking = () => {
           <div className='flex flex-col md:items-end md:text-right justify-between p-4'>
             <div className='flex items-center gap-4'>
               <p className='text-2xl font-medium cursor-pointer'>{currency}{items.amount}</p>
-            {!items.isPaid && <button className='px-4 py-1.5 bg-primary mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay Now</button>}
+              {!items.isPaid && <button className='px-4 py-1.5 bg-primary mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay Now</button>}
             </div>
             <div className='text-sm'>
               <p><span className='text-gray-400'>Total Tickets:</span>{items.bookedSeats.length}</p>
@@ -53,7 +67,7 @@ const MyBooking = () => {
       ))}
 
     </div>
-      ) : (<Loading />)
+  ) : (<Loading />)
 }
 
-      export default MyBooking
+export default MyBooking

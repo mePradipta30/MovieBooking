@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import { MenuIcon, SearchIcon, TicketPlus, XIcon } from 'lucide-react'
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
+import { useAppContext } from '../context/AppContext'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useUser()
   const { openSignIn } = useClerk()
   const navigate = useNavigate()
+
+  const { favoriteMovies } = useAppContext();
 
   return (
     <nav className="fixed top-0 left-0 z-50 w-full shadow-sm">
@@ -46,7 +49,7 @@ const Navbar = () => {
                 <UserButton.Action
                   label="My Bookings"
                   labelIcon={<TicketPlus width={15} />}
-                  onClick={() => navigate('/my-booking')}
+                  onClick={() => navigate('/my-bookings')}
                 />
               </UserButton.MenuItems>
             </UserButton>
@@ -66,7 +69,7 @@ const Navbar = () => {
           <Link to="/">Home</Link>
           <Link to="/">Theaters</Link>
           <Link to="/">Releases</Link>
-          <Link to="/favorite">Favorites</Link>
+          {favoriteMovies.length > 0 && <Link to="/favorite">Favorites</Link>}
           
         </div>
 
@@ -88,7 +91,7 @@ const Navbar = () => {
           <Link onClick={() => setIsOpen(false)} to="/movies" className="hover:text-[#f84464] transition">Movies</Link>
           <Link onClick={() => setIsOpen(false)} to="/" className="hover:text-[#f84464] transition">Theaters</Link>
           <Link onClick={() => setIsOpen(false)} to="/" className="hover:text-[#f84464] transition">Releases</Link>
-          <Link onClick={() => setIsOpen(false)} to="/favorite" className="hover:text-[#f84464] transition">Favorites</Link>
+          {favoriteMovies.length > 0 && <Link onClick={() => setIsOpen(false)} to="/favorite" className="hover:text-[#f84464] transition">Favorites</Link>}
         </div>
       )}
     </nav>
