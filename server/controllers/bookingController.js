@@ -30,7 +30,7 @@ export const createBooking = async (req, res) => {
         }
 
         // get show details
-        const showData = await Show.findById(showId).popuplate('movie');
+        const showData = await Show.findById(showId).populate('movie');
 
         //Create a new booking
         const booking = await Booking.create({

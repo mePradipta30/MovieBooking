@@ -12,6 +12,8 @@ const ListBookings = () => {
   const [bookings, setBookings] = React.useState([])
   const [loading, setLoading] = React.useState(true)
 
+  
+
   const getAllBookings = async () => {
     try {
       const { data } = await axios.get('/api/admin/all-bookings', {

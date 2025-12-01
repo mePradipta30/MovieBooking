@@ -42,7 +42,7 @@ export const getAllShows = async (req, res) => {
 // API to get all bookings
 export const getAllBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find({}).populate('user').populate('user').populate({
+        const bookings = await Booking.find({}).populate('user').populate({
             path: "show", 
             populate: { path: 'movie' }
         }).sort({ createdAt: -1 });
