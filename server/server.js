@@ -18,7 +18,7 @@ await connectDB(); // Connect to the database
 
 //83KU7taQuO1r2Zf3
 //Stripe Webhook Route
-app.post('/api/stripe',express.raw({type: `application/json`}),stripeWebHooks)
+app.use('/api/stripe',express.raw({type: 'application/json'}),stripeWebHooks)
 
 //Middleware
 app.use(express.json())
