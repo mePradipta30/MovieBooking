@@ -1,6 +1,10 @@
 import stripe  from 'stripe'
 import Booking from '../models/Booking.js';
 
+export const config = {
+  api: { bodyParser: false }
+};
+
 export const stripeWebHooks = async (request,response)=>{
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
     const sig = request.headers["stripe-signature"];
