@@ -35,7 +35,7 @@ const MyBooking = () => {
     }
   }, [user]);
 
-  console.log(bookings);
+  // console.log(bookings);
   
 
   return !isLoading ? (
