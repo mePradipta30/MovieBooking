@@ -50,7 +50,7 @@ const ListBookings = () => {
               <tr key={index} className="border-b border-primary/10 bg-primary/5 even:bg-primary/10">
                 <td className='p-2 min-w-45 pl-5'>{booking.user.firstName} {booking.user.name}</td>
                 <td className='p-2'>{booking.show.movie.title}</td>
-                <td className='p-2'>{dateFormat(booking.show.showsDateTime)}</td>
+                <td className='p-2'>{dateFormat(booking.show.showDateTime)}</td>
                 <td className='p-2'>{Object.keys(booking.bookedSeats).map(seat => booking.bookedSeats[seat]).join(", ")}</td>
                 <td className='p-2'>{currency + booking.amount}</td>
               </tr>
