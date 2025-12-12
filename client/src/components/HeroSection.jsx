@@ -23,7 +23,7 @@ const HeroSection = () => {
                 </div>
             </div>
             <p className='max-w-md text-gray-300'> An online movie ticketing that allows peoples to explore various movies as well as reserve seats and buy tickets any time.</p>
-            <button  onClick={()=> navigate('/movies')} className='flex items-center gap-1 px-6 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer'>
+            <button  onClick={()=> {navigate('/movies');scrollTo(0, 0)}} className='flex items-center gap-1 px-6 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer'>
                 Explore Movies
                 <ArrowRight className='w-5 h-5' />
             </button>
