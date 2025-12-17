@@ -53,19 +53,25 @@ export const addShow = async (req, res) => {
             movie = await Movie.create(movieDetailsToSave);
         }
 
-        const showsTocreate = [];
-        showsInput.forEach(show => {
-            const showDate = show.date;
-            show.time.forEach(time => {
-                const dateTImeString = `${showDate}T${time}`;
-                showsTocreate.push({
-                    movie: movieId,
-                    showDateTime: new Date(dateTImeString),
-                    showPrice,
-                    occupiedSeats: {}
-                });
-            });
-        });
+        // const showsTocreate = [];
+        // showsInput.forEach(show => {
+        //     const showDate = show.date;
+        //     show.time.forEach(time => {
+        //         const dateTImeString = `${showDate}T${time}`;
+        //         showsTocreate.push({
+        //             movie: movieId,
+        //             showDateTime: new Date(dateTImeString),
+        //             showPrice,
+        //             occupiedSeats: {}
+        //         });
+        //     });
+        // });
+        const showsTocreate = showsInput.map(show => ({
+            movie: movieId,
+            showDateTime: new Date(show.showDateTime),
+            showPrice,
+            occupiedSeats: {}
+        }))
 
         if (showsTocreate.length > 0) {
             await Show.insertMany(showsTocreate);
@@ -103,14 +109,26 @@ export const getShow = async (req, res) => {
         const shows = await Show.find({ movie: movieId, showDateTime: { $gte: new Date() } })
 
         const movie = await Movie.findById(movieId);
-        const dateTime = {};
-        shows.forEach(show => {
-            const date = show.showDateTime.toISOString().split('T')[0];
-            if (!dateTime[date]) {
-                dateTime[date] = [];
-            }
-            dateTime[date].push({ time: show.showDateTime, showId: show._id });
-        });
+       const dateTime = {};
+
+shows.forEach(show => {
+  const dateObj = new Date(show.showDateTime);
+  const date = dateObj.toLocaleDateString('en-CA');
+  const time = dateObj.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  if (!dateTime[date]) {
+    dateTime[date] = [];
+  }
+
+  dateTime[date].push({
+    time,
+    showId: show._id
+  });
+});
+
         res.json({ success: true, movie, dateTime });
     } catch (error) {
         console.log(error);

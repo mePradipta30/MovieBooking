@@ -14,7 +14,7 @@ const AddShows = () => {
   const currency = import.meta.env.VITE_CURRENCY
   const [nowPlayingMovies, setNowPlayingMovies] = React.useState([])
   const [selectedMovie, setSelectedMovie] = React.useState(null)
-  const [dateTimeSelection, setDateTimeSelection] = React.useState({})
+  const [dateTimeSelection, setDateTimeSelection] = React.useState([])
   const [dateTimeInput, setDateTimeInput] = React.useState('')
   const [showPrice, setShowPrice] = React.useState('')
   const [addingShow, setAddingShow] = React.useState(false)
@@ -35,55 +35,90 @@ const AddShows = () => {
   }
 
   const handleDateTimeAdd = () => {
-    if (!dateTimeInput) return;
-    const [date, time] = dateTimeInput.split('T');
-    if (!date || !time) return;
-    setDateTimeSelection(prev => {
-      const times = prev[date] || [];
-      if (!times.includes(time)) {
-        return { ...prev, [date]: [...times, time] };
-      }
-      return prev;
-    })
+    // if (!dateTimeInput) return;
+    // const [date, time] = dateTimeInput.split('T');
+    // if (!date || !time) return;
+    // setDateTimeSelection(prev => {
+    //   const times = prev[date] || [];
+    //   if (!times.includes(time)) {
+    //     return { ...prev, [date]: [...times, time] };
+    //   }
+    //   return prev;
+    // })
+    if (!dateTimeInput) return
+
+    const isoDateTime = new Date(dateTimeInput).toISOString()
+
+    if (dateTimeSelection.includes(isoDateTime)) return
+
+    setDateTimeSelection(prev => [...prev, isoDateTime])
+    setDateTimeInput('')
   }
 
-  const handleRemoveTime = (date, time) => {
-    setDateTimeSelection(prev => {
-      const filteredTimes = prev[date].filter(t => t !== time);
-      if (filteredTimes.length === 0) {
-        const { [date]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [date]: filteredTimes };
-    })
+  // const handleRemoveTime = (date, time) => {
+  //   setDateTimeSelection(prev => {
+  //     const filteredTimes = prev[date].filter(t => t !== time);
+  //     if (filteredTimes.length === 0) {
+  //       const { [date]: _, ...rest } = prev;
+  //       return rest;
+  //     }
+  //     return { ...prev, [date]: filteredTimes };
+  //   })
+  // }
+  const handleRemoveTime = (value) => {
+    setDateTimeSelection(prev => prev.filter(dt => dt !== value))
   }
 
   const handleSubmit = async () => {
     try {
-      setAddingShow(true);
+      // setAddingShow(true);
 
-      if (!selectedMovie || Object.keys(dateTimeSelection).length === 0 || !showPrice) {
-        return toast.error('Missing required fields');
+      // if (!selectedMovie || Object.keys(dateTimeSelection).length === 0 || !showPrice) {
+      //   return toast.error('Missing required fields');
+      // }
+
+      // const showsInput = Object.entries(dateTimeSelection).map(([date, time]) => ({ date, time }));
+
+      // const payload = {
+      //   movieId: selectedMovie,
+      //   showsInput,
+      //   showPrice: Number(showPrice),
+      // };
+      // const { data } = await axios.post('/api/show/add-show', payload, {
+      //   headers: { Authorization: `Bearer ${await getToken()}` }
+      // });
+
+      // if (data?.success) {
+      //   toast.success(data.message);
+      //   setSelectedMovie(null);
+      //   setDateTimeSelection({});
+      //   setShowPrice('');
+      // } else {
+      //   toast.error(data.message);
+      // }
+      if (!selectedMovie || dateTimeSelection.length === 0 || !showPrice) {
+        return toast.error('Missing required fields')
       }
 
-      const showsInput = Object.entries(dateTimeSelection).map(([date, time]) => ({ date, time }));
+      setAddingShow(true)
 
       const payload = {
         movieId: selectedMovie,
-        showsInput,
-        showPrice: Number(showPrice),
-      };
+        showsInput: dateTimeSelection.map(dt => ({ showDateTime: dt })),
+        showPrice: Number(showPrice)
+      }
+
       const { data } = await axios.post('/api/show/add-show', payload, {
         headers: { Authorization: `Bearer ${await getToken()}` }
-      });
+      })
 
       if (data?.success) {
         toast.success(data.message);
         setSelectedMovie(null);
-        setDateTimeSelection({});
+        setDateTimeSelection([]);
         setShowPrice('');
       } else {
-        toast.error(data.message);
+        toast.error(data.message)
       }
 
     } catch (error) {
@@ -148,26 +183,38 @@ const AddShows = () => {
         </div>
       </div>
       {/* Display Selected DateTimes */}
-      {Object.keys(dateTimeSelection).length > 0 && (
-        <div className='mt-6'>
-          <h2 className='mb-2'>Selected Date-Time</h2>
-          <ul className='space-y-4'>
-            {Object.entries(dateTimeSelection).map(([date, times]) => (
-              <li key={date}>
-                <div className='font-medium'>{date}</div>
-                <div className='flex flex-wrap gap-2 mt-1 flex-sm'>
-                  {times.map((time) => (
-                    <div key={time} className='border border-primary px-2 py-1 flex items-center rounded'>
-                      <span>{time}</span>
-                      <DeleteIcon onClick={() => handleRemoveTime(date, time)} width={15} className='ml-2 text-red-500 hover:text-red-700 cursor-pointer' />
-                    </div>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {dateTimeSelection.length > 0 && (
+  <div className='mt-6'>
+    <h2 className='mb-2'>Selected Date-Time</h2>
+    <ul className='space-y-4'>
+      {dateTimeSelection.map(dt => {
+        const dateObj = new Date(dt)
+        const date = dateObj.toISOString().split('T')[0]
+        const time = dateObj.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+
+        return (
+          <li key={dt}>
+            <div className='font-medium'>{date}</div>
+            <div className='flex flex-wrap gap-2 mt-1 flex-sm'>
+              <div className='border border-primary px-2 py-1 flex items-center rounded'>
+                <span>{time}</span>
+                <DeleteIcon
+                  onClick={() => handleRemoveTime(dt)}
+                  width={15}
+                  className='ml-2 text-red-500 hover:text-red-700 cursor-pointer'
+                />
+              </div>
+            </div>
+          </li>
+        )
+      })}
+    </ul>
+  </div>
+)}
+
       <button onClick={handleSubmit} disabled={addingShow} className='bg-primary text-white px-8 py-2 mt-6 rounded hover:bg-primary/90 transition-all cursor-pointer'>Add Show</button>
     </>
   ) : <Loading />
