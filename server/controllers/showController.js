@@ -103,36 +103,37 @@ export const getShows = async (req, res) => {
 
 // API to get single show details
 export const getShow = async (req, res) => {
-    try {
-        const { movieId } = req.params;
-        // get all upcoming shows for the movie
-        const shows = await Show.find({ movie: movieId, showDateTime: { $gte: new Date() } })
+  try {
+    const { movieId } = req.params;
 
-        const movie = await Movie.findById(movieId);
-       const dateTime = {};
+    const shows = await Show.find({
+      movie: movieId,
+      showDateTime: { $gte: new Date() }
+    }).sort({ showDateTime: 1 });
 
-shows.forEach(show => {
-  const dateObj = new Date(show.showDateTime);
-  const date = dateObj.toLocaleDateString('en-CA');
-  const time = dateObj.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+    const movie = await Movie.findById(movieId);
 
-  if (!dateTime[date]) {
-    dateTime[date] = [];
+    const dateTime = {};
+
+    shows.forEach(show => {
+      // ALWAYS use ISO date key
+      const isoString = show.showDateTime.toISOString();
+      const date = isoString.split('T')[0];
+
+      if (!dateTime[date]) {
+        dateTime[date] = [];
+      }
+
+      dateTime[date].push({
+        showDateTime: isoString, // send full ISO
+        showId: show._id
+      });
+    });
+
+    res.json({ success: true, movie, dateTime });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-
-  dateTime[date].push({
-    time,
-    showId: show._id
-  });
-});
-
-        res.json({ success: true, movie, dateTime });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
-    }
-
 };
+
